@@ -10,6 +10,7 @@ class User < ActiveRecord::Base
                     uniqueness: { case_sensitive: false }
   has_secure_password
   validates :password, presence: true, length: { minimum: 6 }, allow_nil: true
+  has_many :microposts, dependent: :destroy
 
   # Returns the hash digest of the given string.
   def User.digest(string)
@@ -17,7 +18,10 @@ class User < ActiveRecord::Base
                                                   BCrypt::Engine.cost
     BCrypt::Password.create(string, cost: cost)
   end
-
+  
+ def feed
+    Micropost.where("user_id = ?", id)
+  end
   # Returns a random token.
   def User.new_token
     SecureRandom.urlsafe_base64
